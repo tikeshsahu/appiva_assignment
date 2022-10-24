@@ -221,7 +221,7 @@ class _LoginState extends State<Login> {
                       ),
                       TextField(
                         controller: passwordController,
-                        keyboardType: TextInputType.number,
+                        obscureText: true,
                         style: const TextStyle(),
                         decoration: InputDecoration(
                             fillColor: Colors.grey.shade100,

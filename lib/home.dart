@@ -1,4 +1,5 @@
 import 'package:appiva_int/pages/LoginPage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 235, 231, 231),
       body: isLoading == true
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -54,6 +56,8 @@ class _HomeState extends State<Home> {
                     );
                   } else {
                     final checkInData = snapshot.data!.docs;
+                    //checkInData.sort((a, b) => b.compareTo(a));
+                    print(checkInData);
                     return Column(
                       children: [
                         Text(
@@ -73,26 +77,36 @@ class _HomeState extends State<Home> {
                               ),
                               Text(
                                   '(Tap the list for Image and Location Detail)'),
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    await FirebaseAuth.instance.signOut();
-                                    await Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const Login(),
-                                      ),
-                                    );
-                                  },
-                                  child: Text('LogOut')),
                               SizedBox(
                                 height: 25,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      await FirebaseAuth.instance.signOut();
+                                      await Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const Login(),
+                                        ),
+                                      );
+                                    },
+                                    icon: Icon(Icons.exit_to_app),
+                                    iconSize: 40,
+                                  ),
+                                ],
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: Color(0xFFFAF0DC),
+                                  ),
                                   height: MediaQuery.of(context).size.height,
                                   width: MediaQuery.of(context).size.width,
-                                  color: Colors.amber,
                                   child: ListView.builder(
                                       itemCount: checkInData.length,
                                       itemBuilder:
@@ -112,9 +126,32 @@ class _HomeState extends State<Home> {
                                                             'Longitude - ${checkInData[index]['longitude'].toString()}')
                                                       ],
                                                     ),
-                                                    content: Image.network(
-                                                        checkInData[index]
-                                                            ['image']),
+                                                    content: CachedNetworkImage(
+                                                      imageUrl:
+                                                          checkInData[index]
+                                                              ['image'],
+                                                      progressIndicatorBuilder:
+                                                          (context, url,
+                                                                  downloadProgress) =>
+                                                              Center(
+                                                        child: CircularProgressIndicator(
+                                                            value:
+                                                                downloadProgress
+                                                                    .progress),
+                                                      ),
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          Icon(Icons.error),
+                                                    ),
+
+                                                    // Image.network(
+                                                    //     loadingBuilder: (context,
+                                                    //         child,
+                                                    //         loadingProgress) {
+                                                    //   return Center(child: CircularProgressIndicator());
+                                                    // },
+                                                    //     checkInData[index]
+                                                    //         ['image']),
                                                     actions: <Widget>[
                                                       TextButton(
                                                         onPressed: () {
@@ -135,7 +172,7 @@ class _HomeState extends State<Home> {
                                               },
                                               child: ListTile(
                                                   leading:
-                                                      Text(index.toString()),
+                                                      Text([index+1].toString()),
                                                   trailing: Text(
                                                     checkInData[index]['place'],
                                                   ),

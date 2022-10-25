@@ -28,6 +28,7 @@ class _LoginState extends State<Login> {
   String time = '', imageUrl = '';
   String? place = '';
   double longitude = 0, latitude = 0;
+  bool isLoading = false;
 
   final formKey = GlobalKey<FormState>();
   final ImagePicker picker = ImagePicker();
@@ -127,6 +128,9 @@ class _LoginState extends State<Login> {
 
   userLogin() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       await checkGps();
@@ -141,6 +145,9 @@ class _LoginState extends State<Login> {
       );
       await selectFromCamera();
       await checkIn();
+      setState(() {
+        isLoading = false;
+      });
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -185,7 +192,9 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
+      body: isLoading == true
+      ? Center(child: CircularProgressIndicator(),) 
+      :Stack(
         children: [
           Container(
             padding: const EdgeInsets.only(left: 35, top: 130),
